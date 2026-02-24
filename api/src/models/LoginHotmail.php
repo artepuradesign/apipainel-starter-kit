@@ -14,9 +14,9 @@ class LoginHotmail extends BaseModel {
     /**
      * Listar logins disponíveis (ativos)
      */
-    public function listLogins($limit = 50, $offset = 0, $search = null) {
-        $where = ['a.ativo = 1'];
-        $params = [];
+    public function listLogins($limit = 50, $offset = 0, $search = null, $userId = null) {
+        $where = ['(a.ativo = 1 OR a.id IN (SELECT login_id FROM ' . $this->tableCompras . ' WHERE user_id = ?))'];
+        $params = [$userId ?? 0];
 
         if ($search) {
             $where[] = '(a.email LIKE ? OR a.observacao LIKE ?)';
@@ -35,9 +35,9 @@ class LoginHotmail extends BaseModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function countLogins($search = null) {
-        $where = ['ativo = 1'];
-        $params = [];
+    public function countLogins($search = null, $userId = null) {
+        $where = ['(ativo = 1 OR id IN (SELECT login_id FROM ' . $this->tableCompras . ' WHERE user_id = ?))'];
+        $params = [$userId ?? 0];
 
         if ($search) {
             $where[] = '(email LIKE ? OR observacao LIKE ?)';
