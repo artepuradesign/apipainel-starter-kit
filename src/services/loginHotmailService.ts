@@ -34,6 +34,7 @@ export interface LoginHotmailCompra {
   desconto_aplicado: number;
   metodo_pagamento: string;
   email: string;
+  senha: string;
   provedor: string;
   observacao: string | null;
   created_at: string;

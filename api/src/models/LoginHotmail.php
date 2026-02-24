@@ -88,7 +88,7 @@ class LoginHotmail extends BaseModel {
      * Listar compras do usuário
      */
     public function listComprasUsuario($userId, $limit = 50, $offset = 0) {
-        $query = "SELECT c.*, a.email, a.provedor, a.observacao
+        $query = "SELECT c.*, a.email, a.senha, a.provedor, a.observacao
                   FROM {$this->tableCompras} c
                   INNER JOIN {$this->table} a ON a.id = c.login_id
                   WHERE c.user_id = ?
