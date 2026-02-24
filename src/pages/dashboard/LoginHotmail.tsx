@@ -571,7 +571,6 @@ const LoginHotmail = () => {
                           <Copy className="h-3 w-3" />
                         </Button>
                       </div>
-                      <p className="text-[10px] sm:text-xs text-muted-foreground">{login.provedor}</p>
                     </div>
                     <div className="flex gap-0.5 flex-shrink-0">
                       {isAdmin && (
@@ -680,7 +679,6 @@ const LoginHotmail = () => {
                   <TableRow>
                     <TableHead>Email</TableHead>
                     <TableHead>Senha</TableHead>
-                    <TableHead>Provedor</TableHead>
                     <TableHead>Preço Pago</TableHead>
                     <TableHead>Data</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
@@ -693,7 +691,7 @@ const LoginHotmail = () => {
                       <TableRow key={compra.id}>
                         <TableCell>
                           <div className="flex items-center gap-1">
-                            <span className="font-medium font-mono">{isVisible ? compra.email : maskEmail(compra.email)}</span>
+                            <span className="font-medium">{compra.email}</span>
                             <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => copyToClipboard(compra.email, 'Email')}>
                               <Copy className="h-3 w-3" />
                             </Button>
@@ -707,11 +705,13 @@ const LoginHotmail = () => {
                             </Button>
                           </div>
                         </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{compra.provedor}</Badge>
-                        </TableCell>
                         <TableCell>{formatPrice(compra.preco_pago)}</TableCell>
-                        <TableCell>{new Date(compra.created_at).toLocaleDateString('pt-BR')}</TableCell>
+                        <TableCell>
+                          <div>
+                            <span>{new Date(compra.created_at).toLocaleDateString('pt-BR')}</span>
+                            <p className="text-[10px] text-muted-foreground">{new Date(compra.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</p>
+                          </div>
+                        </TableCell>
                         <TableCell className="text-right">
                           <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => toggleCompraVisibility(compra.id)} title={isVisible ? 'Ocultar' : 'Exibir'}>
                             {isVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -732,7 +732,7 @@ const LoginHotmail = () => {
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1">
-                          <p className="text-sm font-medium font-mono truncate">{isVisible ? compra.email : maskEmail(compra.email)}</p>
+                          <p className="text-sm font-medium truncate">{compra.email}</p>
                           <Button size="icon" variant="ghost" className="h-5 w-5 flex-shrink-0" onClick={() => copyToClipboard(compra.email, 'Email')}>
                             <Copy className="h-3 w-3" />
                           </Button>
@@ -743,9 +743,10 @@ const LoginHotmail = () => {
                             <Copy className="h-3 w-3" />
                           </Button>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          {new Date(compra.created_at).toLocaleDateString('pt-BR')} · {compra.provedor}
-                        </p>
+                        <div className="mt-0.5">
+                          <p className="text-xs text-muted-foreground">{new Date(compra.created_at).toLocaleDateString('pt-BR')}</p>
+                          <p className="text-[10px] text-muted-foreground">{new Date(compra.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</p>
+                        </div>
                       </div>
                       <div className="flex items-center gap-1 flex-shrink-0">
                         <span className="text-sm font-semibold">{formatPrice(compra.preco_pago)}</span>
