@@ -90,6 +90,7 @@ const LoginHotmail = () => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [visiblePasswords, setVisiblePasswords] = useState<Set<number>>(new Set());
+  const [visibleCompras, setVisibleCompras] = useState<Set<number>>(new Set());
 
   // Admin modals
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -230,6 +231,22 @@ const LoginHotmail = () => {
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     toast.success(`${label} copiado!`);
+  };
+
+  const toggleCompraVisibility = (id: number) => {
+    setVisibleCompras(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const maskEmail = (email: string) => {
+    const [user, domain] = email.split('@');
+    if (!domain) return '***@***';
+    const visible = user.slice(0, Math.min(4, Math.floor(user.length / 2)));
+    return `${visible}***@${domain}`;
   };
 
   const formatPrice = (value: number) => `R$ ${Number(value).toFixed(2).replace('.', ',')}`;
@@ -626,15 +643,17 @@ const LoginHotmail = () => {
                         Adquirido
                       </Badge>
                     ) : (
-                      <Badge variant="outline" className="text-[10px]">
-                        <ShoppingCart className="h-3 w-3 mr-0.5" />
-                        Disponível
-                      </Badge>
-                    )}
-                    {login.status && (
-                      <Badge variant="secondary" className="text-[10px] capitalize">
-                        {login.status}
-                      </Badge>
+                      <>
+                        <Badge variant="outline" className="text-[10px]">
+                          <ShoppingCart className="h-3 w-3 mr-0.5" />
+                          Disponível
+                        </Badge>
+                        {login.status && (
+                          <Badge variant="secondary" className="text-[10px] capitalize">
+                            {login.status}
+                          </Badge>
+                        )}
+                      </>
                     )}
                     {login.observacao && (
                       <span className="text-[10px] text-muted-foreground truncate max-w-[100px] sm:max-w-[120px]">{login.observacao}</span>
@@ -660,6 +679,7 @@ const LoginHotmail = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Email</TableHead>
+                    <TableHead>Senha</TableHead>
                     <TableHead>Provedor</TableHead>
                     <TableHead>Preço Pago</TableHead>
                     <TableHead>Data</TableHead>
@@ -667,44 +687,76 @@ const LoginHotmail = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {compras.map((compra) => (
-                    <TableRow key={compra.id}>
-                      <TableCell className="font-medium">{compra.email}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{compra.provedor}</Badge>
-                      </TableCell>
-                      <TableCell>{formatPrice(compra.preco_pago)}</TableCell>
-                      <TableCell>{new Date(compra.created_at).toLocaleDateString('pt-BR')}</TableCell>
-                      <TableCell className="text-right">
-                        <Button size="sm" variant="outline" onClick={() => copyToClipboard(compra.email, 'Email')}>
-                          <Copy className="h-4 w-4 mr-1" />
-                          Copiar
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {compras.map((compra) => {
+                    const isVisible = visibleCompras.has(compra.id);
+                    return (
+                      <TableRow key={compra.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-1">
+                            <span className="font-medium font-mono">{isVisible ? compra.email : maskEmail(compra.email)}</span>
+                            <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => copyToClipboard(compra.email, 'Email')}>
+                              <Copy className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1">
+                            <span className="font-mono text-sm">{isVisible ? compra.senha : '•••••••'}</span>
+                            <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => copyToClipboard(compra.senha, 'Senha')}>
+                              <Copy className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{compra.provedor}</Badge>
+                        </TableCell>
+                        <TableCell>{formatPrice(compra.preco_pago)}</TableCell>
+                        <TableCell>{new Date(compra.created_at).toLocaleDateString('pt-BR')}</TableCell>
+                        <TableCell className="text-right">
+                          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => toggleCompraVisibility(compra.id)} title={isVisible ? 'Ocultar' : 'Exibir'}>
+                            {isVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
             {/* Mobile list */}
             <div className="md:hidden divide-y divide-border">
-              {compras.map((compra) => (
-                <div key={compra.id} className="p-3 space-y-2">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium truncate">{compra.email}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(compra.created_at).toLocaleDateString('pt-BR')} · {compra.provedor}
-                      </p>
+              {compras.map((compra) => {
+                const isVisible = visibleCompras.has(compra.id);
+                return (
+                  <div key={compra.id} className="p-3 space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1">
+                          <p className="text-sm font-medium font-mono truncate">{isVisible ? compra.email : maskEmail(compra.email)}</p>
+                          <Button size="icon" variant="ghost" className="h-5 w-5 flex-shrink-0" onClick={() => copyToClipboard(compra.email, 'Email')}>
+                            <Copy className="h-3 w-3" />
+                          </Button>
+                        </div>
+                        <div className="flex items-center gap-1 mt-0.5">
+                          <p className="text-xs font-mono text-muted-foreground">{isVisible ? compra.senha : '•••••••'}</p>
+                          <Button size="icon" variant="ghost" className="h-5 w-5 flex-shrink-0" onClick={() => copyToClipboard(compra.senha, 'Senha')}>
+                            <Copy className="h-3 w-3" />
+                          </Button>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {new Date(compra.created_at).toLocaleDateString('pt-BR')} · {compra.provedor}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <span className="text-sm font-semibold">{formatPrice(compra.preco_pago)}</span>
+                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => toggleCompraVisibility(compra.id)} title={isVisible ? 'Ocultar' : 'Exibir'}>
+                          {isVisible ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                        </Button>
+                      </div>
                     </div>
-                    <span className="text-sm font-semibold shrink-0">{formatPrice(compra.preco_pago)}</span>
                   </div>
-                  <Button size="sm" variant="outline" className="w-full h-8 text-xs" onClick={() => copyToClipboard(compra.email, 'Email')}>
-                    <Copy className="h-3.5 w-3.5 mr-1" />
-                    Copiar Email
-                  </Button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </Card>
         </div>
