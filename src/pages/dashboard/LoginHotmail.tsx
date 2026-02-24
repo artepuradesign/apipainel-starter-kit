@@ -534,115 +534,61 @@ const LoginHotmail = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
-          {logins.map((login) => {
-            const isSelected = selectedLogins.has(login.id);
-            return (
-              <Card
-                key={login.id}
-                className={`bg-card border-border hover:shadow-lg transition-all overflow-hidden ${
-                  login.comprado ? 'ring-2 ring-green-500/30' : ''
-                } ${isSelected ? 'ring-2 ring-primary' : ''}`}
-              >
-                <CardContent className="p-3 sm:p-4 space-y-2 sm:space-y-3">
-                  {/* Header com checkbox, ícone e badges */}
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-2 min-w-0 flex-1">
-                      {/* Checkbox para seleção */}
-                      {!login.comprado && (
-                        <Checkbox
-                          checked={isSelected}
-                          onCheckedChange={() => toggleLoginSelection(login.id)}
-                          className="flex-shrink-0 mt-0.5"
-                        />
+        <>
+          {/* Logins disponíveis */}
+          {availableLogins.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
+              {availableLogins.map((login) => {
+                const isSelected = selectedLogins.has(login.id);
+                return (
+                  <Card
+                    key={login.id}
+                    className={`bg-card border-border hover:shadow-lg transition-all overflow-hidden ${isSelected ? 'ring-2 ring-primary' : ''}`}
+                  >
+                    <CardContent className="p-3 sm:p-4 space-y-2 sm:space-y-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          <Checkbox
+                            checked={isSelected}
+                            onCheckedChange={() => toggleLoginSelection(login.id)}
+                            className="flex-shrink-0 mt-0.5"
+                          />
+                          <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-blue-500/10 flex items-center justify-center flex-shrink-0">
+                            <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
+                          </div>
+                          <div className="min-w-0 flex-1 flex items-center gap-1">
+                            <p className="text-xs sm:text-sm font-semibold truncate">{login.email}</p>
+                            <Button size="icon" variant="ghost" className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" onClick={(e) => { e.stopPropagation(); copyToClipboard(login.email, 'Email'); }} title="Copiar email">
+                              <Copy className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="flex gap-0.5 flex-shrink-0">
+                          {isAdmin && (
+                            <>
+                              <Button size="icon" variant="ghost" className="h-6 w-6 sm:h-7 sm:w-7" onClick={(e) => { e.stopPropagation(); handleOpenEdit(login); }}>
+                                <Pencil className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                              </Button>
+                              <Button size="icon" variant="ghost" className="h-6 w-6 sm:h-7 sm:w-7 text-destructive" onClick={(e) => { e.stopPropagation(); handleOpenDelete(login); }}>
+                                <Trash2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 bg-muted/50 rounded-md p-1.5 sm:p-2">
+                        <span className="text-[10px] sm:text-xs text-muted-foreground">Senha:</span>
+                        <span className="text-xs sm:text-sm font-mono flex-1 truncate">••••••••</span>
+                      </div>
+                      {isAdmin && login.cpf && (
+                        <div className="text-[10px]">
+                          <div className="bg-muted/50 rounded px-1.5 py-1 inline-block">
+                            <span className="text-muted-foreground">CPF:</span>
+                            <span className="ml-1 font-medium">{login.cpf}</span>
+                          </div>
+                        </div>
                       )}
-                      <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-blue-500/10 flex items-center justify-center flex-shrink-0">
-                        <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
-                      </div>
-                      <div className="min-w-0 flex-1 flex items-center gap-1">
-                        <p className="text-xs sm:text-sm font-semibold truncate">{login.email}</p>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0"
-                          onClick={(e) => { e.stopPropagation(); copyToClipboard(login.email, 'Email'); }}
-                          title="Copiar email"
-                        >
-                          <Copy className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="flex gap-0.5 flex-shrink-0">
-                      {isAdmin && (
-                        <>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="h-6 w-6 sm:h-7 sm:w-7"
-                            onClick={(e) => { e.stopPropagation(); handleOpenEdit(login); }}
-                          >
-                            <Pencil className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                          </Button>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="h-6 w-6 sm:h-7 sm:w-7 text-destructive"
-                            onClick={(e) => { e.stopPropagation(); handleOpenDelete(login); }}
-                          >
-                            <Trash2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Senha */}
-                  <div className="flex items-center gap-2 bg-muted/50 rounded-md p-1.5 sm:p-2">
-                    <span className="text-[10px] sm:text-xs text-muted-foreground">Senha:</span>
-                    <span className="text-xs sm:text-sm font-mono flex-1 truncate">
-                      {login.comprado && visiblePasswords.has(login.id) ? login.senha : '••••••••'}
-                    </span>
-                    {login.comprado && (
-                      <div className="flex gap-0.5">
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="h-5 w-5 sm:h-6 sm:w-6"
-                          onClick={(e) => { e.stopPropagation(); togglePasswordVisibility(login.id); }}
-                        >
-                          {visiblePasswords.has(login.id) ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="h-5 w-5 sm:h-6 sm:w-6"
-                          onClick={(e) => { e.stopPropagation(); copyToClipboard(login.senha, 'Senha'); }}
-                        >
-                          <Copy className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Info extra - apenas CPF para admin, sem saldo/pts */}
-                  {isAdmin && login.cpf && (
-                    <div className="text-[10px]">
-                      <div className="bg-muted/50 rounded px-1.5 py-1 inline-block">
-                        <span className="text-muted-foreground">CPF:</span>
-                        <span className="ml-1 font-medium">{login.cpf}</span>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Status */}
-                  <div className="flex items-center justify-between flex-wrap gap-1">
-                    {login.comprado ? (
-                      <Badge className="bg-green-500/90 text-white border-0 text-[10px]">
-                        <CheckCircle className="h-3 w-3 mr-0.5" />
-                        Adquirido
-                      </Badge>
-                    ) : (
-                      <>
+                      <div className="flex items-center justify-between flex-wrap gap-1">
                         <Badge variant="outline" className="text-[10px]">
                           <ShoppingCart className="h-3 w-3 mr-0.5" />
                           Disponível
@@ -652,116 +598,103 @@ const LoginHotmail = () => {
                             {login.status}
                           </Badge>
                         )}
-                      </>
-                    )}
-                    {login.observacao && (
-                      <span className="text-[10px] text-muted-foreground truncate max-w-[100px] sm:max-w-[120px]">{login.observacao}</span>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Histórico de Compras */}
-      {!comprasLoading && compras.length > 0 && (
-        <div className="space-y-3">
-          <h3 className="text-sm sm:text-base font-semibold text-foreground flex items-center gap-2">
-            <Clock className="h-4 w-4 text-muted-foreground" />
-            Minhas Compras
-          </h3>
-          <Card className="bg-card border-border overflow-hidden">
-            <div className="hidden md:block overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Senha</TableHead>
-                    <TableHead>Preço Pago</TableHead>
-                    <TableHead>Data</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {compras.map((compra) => {
-                    const isVisible = visibleCompras.has(compra.id);
-                    return (
-                      <TableRow key={compra.id}>
-                        <TableCell>
-                          <div className="flex items-center gap-1">
-                            <span className="font-medium">{compra.email}</span>
-                            <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => copyToClipboard(compra.email, 'Email')}>
-                              <Copy className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1">
-                            <span className="font-mono text-sm">{isVisible ? compra.senha : '•••••••'}</span>
-                            <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => copyToClipboard(compra.senha, 'Senha')}>
-                              <Copy className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                        <TableCell>{formatPrice(compra.preco_pago)}</TableCell>
-                        <TableCell>
-                          <div>
-                            <span>{new Date(compra.created_at).toLocaleDateString('pt-BR')}</span>
-                            <p className="text-[10px] text-muted-foreground">{new Date(compra.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</p>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => toggleCompraVisibility(compra.id)} title={isVisible ? 'Ocultar' : 'Exibir'}>
-                            {isVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
-            {/* Mobile list */}
-            <div className="md:hidden divide-y divide-border">
-              {compras.map((compra) => {
-                const isVisible = visibleCompras.has(compra.id);
-                return (
-                  <div key={compra.id} className="p-3 space-y-2">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1">
-                          <p className="text-sm font-medium truncate">{compra.email}</p>
-                          <Button size="icon" variant="ghost" className="h-5 w-5 flex-shrink-0" onClick={() => copyToClipboard(compra.email, 'Email')}>
-                            <Copy className="h-3 w-3" />
-                          </Button>
-                        </div>
-                        <div className="flex items-center gap-1 mt-0.5">
-                          <p className="text-xs font-mono text-muted-foreground">{isVisible ? compra.senha : '•••••••'}</p>
-                          <Button size="icon" variant="ghost" className="h-5 w-5 flex-shrink-0" onClick={() => copyToClipboard(compra.senha, 'Senha')}>
-                            <Copy className="h-3 w-3" />
-                          </Button>
-                        </div>
-                        <div className="mt-0.5">
-                          <p className="text-xs text-muted-foreground">{new Date(compra.created_at).toLocaleDateString('pt-BR')}</p>
-                          <p className="text-[10px] text-muted-foreground">{new Date(compra.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</p>
-                        </div>
+                        {login.observacao && (
+                          <span className="text-[10px] text-muted-foreground truncate max-w-[100px] sm:max-w-[120px]">{login.observacao}</span>
+                        )}
                       </div>
-                      <div className="flex items-center gap-1 flex-shrink-0">
-                        <span className="text-sm font-semibold">{formatPrice(compra.preco_pago)}</span>
-                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => toggleCompraVisibility(compra.id)} title={isVisible ? 'Ocultar' : 'Exibir'}>
-                          {isVisible ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
+                    </CardContent>
+                  </Card>
                 );
               })}
             </div>
-          </Card>
-        </div>
+          )}
+
+          {/* Minhas Compras */}
+          {logins.filter(l => l.comprado).length > 0 && (
+            <div className="space-y-2 sm:space-y-3">
+              <h3 className="text-sm sm:text-base font-semibold text-foreground flex items-center gap-2">
+                <Clock className="h-4 w-4 text-muted-foreground" />
+                Minhas Compras
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
+                {logins.filter(l => l.comprado).map((login) => {
+                  const compra = compras.find(c => c.login_id === login.id);
+                  return (
+                    <Card
+                      key={login.id}
+                      className="bg-card border-border hover:shadow-lg transition-all overflow-hidden ring-2 ring-green-500/30"
+                    >
+                      <CardContent className="p-3 sm:p-4 space-y-2 sm:space-y-3">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-center gap-2 min-w-0 flex-1">
+                            <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-blue-500/10 flex items-center justify-center flex-shrink-0">
+                              <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
+                            </div>
+                            <div className="min-w-0 flex-1 flex items-center gap-1">
+                              <p className="text-xs sm:text-sm font-semibold truncate">{login.email}</p>
+                              <Button size="icon" variant="ghost" className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" onClick={(e) => { e.stopPropagation(); copyToClipboard(login.email, 'Email'); }} title="Copiar email">
+                                <Copy className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </div>
+                          <div className="flex gap-0.5 flex-shrink-0">
+                            {isAdmin && (
+                              <>
+                                <Button size="icon" variant="ghost" className="h-6 w-6 sm:h-7 sm:w-7" onClick={(e) => { e.stopPropagation(); handleOpenEdit(login); }}>
+                                  <Pencil className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                                </Button>
+                                <Button size="icon" variant="ghost" className="h-6 w-6 sm:h-7 sm:w-7 text-destructive" onClick={(e) => { e.stopPropagation(); handleOpenDelete(login); }}>
+                                  <Trash2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 bg-muted/50 rounded-md p-1.5 sm:p-2">
+                          <span className="text-[10px] sm:text-xs text-muted-foreground">Senha:</span>
+                          <span className="text-xs sm:text-sm font-mono flex-1 truncate">
+                            {visiblePasswords.has(login.id) ? login.senha : '••••••••'}
+                          </span>
+                          <div className="flex gap-0.5">
+                            <Button size="icon" variant="ghost" className="h-5 w-5 sm:h-6 sm:w-6" onClick={(e) => { e.stopPropagation(); togglePasswordVisibility(login.id); }}>
+                              {visiblePasswords.has(login.id) ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                            </Button>
+                            <Button size="icon" variant="ghost" className="h-5 w-5 sm:h-6 sm:w-6" onClick={(e) => { e.stopPropagation(); copyToClipboard(login.senha, 'Senha'); }}>
+                              <Copy className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+                        {isAdmin && login.cpf && (
+                          <div className="text-[10px]">
+                            <div className="bg-muted/50 rounded px-1.5 py-1 inline-block">
+                              <span className="text-muted-foreground">CPF:</span>
+                              <span className="ml-1 font-medium">{login.cpf}</span>
+                            </div>
+                          </div>
+                        )}
+                        <div className="flex items-center flex-wrap gap-1.5">
+                          <Badge className="bg-green-500/90 text-white border-0 text-[10px]">
+                            <CheckCircle className="h-3 w-3 mr-0.5" />
+                            Adquirido {compra ? formatPrice(compra.preco_pago) : ''}
+                          </Badge>
+                          {compra && (
+                            <span className="text-[10px] text-muted-foreground">
+                              {new Date(compra.created_at).toLocaleDateString('pt-BR')} · {new Date(compra.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </>
       )}
+
+
+
 
       {/* Modal de Confirmação de Compra em Lote */}
       <Dialog open={showConfirmModal} onOpenChange={setShowConfirmModal}>
