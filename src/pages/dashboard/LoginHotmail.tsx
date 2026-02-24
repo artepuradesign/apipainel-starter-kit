@@ -542,10 +542,19 @@ const LoginHotmail = () => {
                       <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-blue-500/10 flex items-center justify-center flex-shrink-0">
                         <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
                       </div>
-                      <div className="min-w-0 flex-1">
+                      <div className="min-w-0 flex-1 flex items-center gap-1">
                         <p className="text-xs sm:text-sm font-semibold truncate">{login.email}</p>
-                        <p className="text-[10px] sm:text-xs text-muted-foreground">{login.provedor}</p>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0"
+                          onClick={(e) => { e.stopPropagation(); copyToClipboard(login.email, 'Email'); }}
+                          title="Copiar email"
+                        >
+                          <Copy className="h-3 w-3" />
+                        </Button>
                       </div>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground">{login.provedor}</p>
                     </div>
                     <div className="flex gap-0.5 flex-shrink-0">
                       {isAdmin && (
