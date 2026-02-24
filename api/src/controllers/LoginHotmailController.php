@@ -23,11 +23,11 @@ class LoginHotmailController {
             $offset = isset($_GET['offset']) ? max(0, (int)$_GET['offset']) : 0;
             $search = $_GET['search'] ?? null;
 
-            $rows = $this->model->listLogins($limit, $offset, $search);
-            $total = $this->model->countLogins($search);
+            $userId = AuthMiddleware::getCurrentUserId();
+            $rows = $this->model->listLogins($limit, $offset, $search, $userId);
+            $total = $this->model->countLogins($search, $userId);
 
             // Filtrar logins já vendidos e marcar compras do usuário
-            $userId = AuthMiddleware::getCurrentUserId();
             $filteredRows = [];
             foreach ($rows as &$row) {
                 // Verificar se foi vendido para QUALQUER pessoa
