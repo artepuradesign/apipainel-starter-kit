@@ -428,7 +428,8 @@ const LoginHotmail = () => {
     </div>
   );
 
-  const availableLogins = logins.filter(l => !l.comprado);
+  const availableLogins = logins.filter(l => !l.comprado).slice(0, 9);
+  const purchasedLogins = logins.filter(l => l.comprado);
 
   return (
     <div className="space-y-3 px-1 sm:px-0">
@@ -546,21 +547,15 @@ const LoginHotmail = () => {
                     className={`bg-card border-border hover:shadow-lg transition-all overflow-hidden ${isSelected ? 'ring-2 ring-primary' : ''}`}
                   >
                     <CardContent className="p-3 sm:p-4 space-y-2 sm:space-y-3">
-                      <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2 min-w-0 flex-1">
                           <Checkbox
                             checked={isSelected}
                             onCheckedChange={() => toggleLoginSelection(login.id)}
-                            className="flex-shrink-0 mt-0.5"
+                            className="flex-shrink-0"
                           />
                           <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-blue-500/10 flex items-center justify-center flex-shrink-0">
                             <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
-                          </div>
-                          <div className="min-w-0 flex-1 flex items-center gap-1">
-                            <p className="text-xs sm:text-sm font-semibold truncate">{login.email}</p>
-                            <Button size="icon" variant="ghost" className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" onClick={(e) => { e.stopPropagation(); copyToClipboard(login.email, 'Email'); }} title="Copiar email">
-                              <Copy className="h-3 w-3" />
-                            </Button>
                           </div>
                         </div>
                         <div className="flex gap-0.5 flex-shrink-0">
@@ -577,6 +572,13 @@ const LoginHotmail = () => {
                         </div>
                       </div>
                       <div className="flex items-center gap-2 bg-muted/50 rounded-md p-1.5 sm:p-2">
+                        <span className="text-[10px] sm:text-xs text-muted-foreground">Email:</span>
+                        <span className="text-xs sm:text-sm font-mono flex-1 truncate">{login.email}</span>
+                        <Button size="icon" variant="ghost" className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" onClick={(e) => { e.stopPropagation(); copyToClipboard(login.email, 'Email'); }} title="Copiar email">
+                          <Copy className="h-3 w-3" />
+                        </Button>
+                      </div>
+                      <div className="flex items-center gap-2 bg-muted/50 rounded-md p-1.5 sm:p-2">
                         <span className="text-[10px] sm:text-xs text-muted-foreground">Senha:</span>
                         <span className="text-xs sm:text-sm font-mono flex-1 truncate">••••••••</span>
                       </div>
@@ -588,19 +590,26 @@ const LoginHotmail = () => {
                           </div>
                         </div>
                       )}
-                      <div className="flex items-center justify-between flex-wrap gap-1">
-                        <Badge variant="outline" className="text-[10px]">
-                          <ShoppingCart className="h-3 w-3 mr-0.5" />
-                          Disponível
-                        </Badge>
-                        {login.status && (
-                          <Badge variant="secondary" className="text-[10px] capitalize">
-                            {login.status}
+                      <div className="flex items-center justify-between gap-1">
+                        <div className="flex items-center gap-1.5">
+                          <Badge variant="outline" className="text-[10px]">
+                            <ShoppingCart className="h-3 w-3 mr-0.5" />
+                            Disponível
                           </Badge>
-                        )}
-                        {login.observacao && (
-                          <span className="text-[10px] text-muted-foreground truncate max-w-[100px] sm:max-w-[120px]">{login.observacao}</span>
-                        )}
+                          {login.status && (
+                            <Badge className="bg-green-600 text-white border-0 text-[10px] capitalize">
+                              {login.status}
+                            </Badge>
+                          )}
+                        </div>
+                        <Button
+                          size="sm"
+                          className="h-7 text-[10px] px-2.5"
+                          onClick={(e) => { e.stopPropagation(); toggleLoginSelection(login.id); if (!isSelected) { setSelectedLogins(new Set([login.id])); setShowConfirmModal(true); } }}
+                        >
+                          <ShoppingCart className="h-3 w-3 mr-1" />
+                          Comprar
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -610,14 +619,14 @@ const LoginHotmail = () => {
           )}
 
           {/* Minhas Compras */}
-          {logins.filter(l => l.comprado).length > 0 && (
+          {purchasedLogins.length > 0 && (
             <div className="space-y-2 sm:space-y-3">
               <h3 className="text-sm sm:text-base font-semibold text-foreground flex items-center gap-2">
                 <Clock className="h-4 w-4 text-muted-foreground" />
                 Minhas Compras
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
-                {logins.filter(l => l.comprado).map((login) => {
+                {purchasedLogins.map((login) => {
                   const compra = compras.find(c => c.login_id === login.id);
                   return (
                     <Card
@@ -625,16 +634,10 @@ const LoginHotmail = () => {
                       className="bg-card border-border hover:shadow-lg transition-all overflow-hidden ring-2 ring-green-500/30"
                     >
                       <CardContent className="p-3 sm:p-4 space-y-2 sm:space-y-3">
-                        <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center justify-between gap-2">
                           <div className="flex items-center gap-2 min-w-0 flex-1">
                             <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-blue-500/10 flex items-center justify-center flex-shrink-0">
                               <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
-                            </div>
-                            <div className="min-w-0 flex-1 flex items-center gap-1">
-                              <p className="text-xs sm:text-sm font-semibold truncate">{login.email}</p>
-                              <Button size="icon" variant="ghost" className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" onClick={(e) => { e.stopPropagation(); copyToClipboard(login.email, 'Email'); }} title="Copiar email">
-                                <Copy className="h-3 w-3" />
-                              </Button>
                             </div>
                           </div>
                           <div className="flex gap-0.5 flex-shrink-0">
@@ -651,6 +654,13 @@ const LoginHotmail = () => {
                           </div>
                         </div>
                         <div className="flex items-center gap-2 bg-muted/50 rounded-md p-1.5 sm:p-2">
+                          <span className="text-[10px] sm:text-xs text-muted-foreground">Email:</span>
+                          <span className="text-xs sm:text-sm font-mono flex-1 truncate">{login.email}</span>
+                          <Button size="icon" variant="ghost" className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" onClick={(e) => { e.stopPropagation(); copyToClipboard(login.email, 'Email'); }} title="Copiar email">
+                            <Copy className="h-3 w-3" />
+                          </Button>
+                        </div>
+                        <div className="flex items-center gap-2 bg-muted/50 rounded-md p-1.5 sm:p-2">
                           <span className="text-[10px] sm:text-xs text-muted-foreground">Senha:</span>
                           <span className="text-xs sm:text-sm font-mono flex-1 truncate">
                             {visiblePasswords.has(login.id) ? login.senha : '••••••••'}
@@ -664,14 +674,6 @@ const LoginHotmail = () => {
                             </Button>
                           </div>
                         </div>
-                        {isAdmin && login.cpf && (
-                          <div className="text-[10px]">
-                            <div className="bg-muted/50 rounded px-1.5 py-1 inline-block">
-                              <span className="text-muted-foreground">CPF:</span>
-                              <span className="ml-1 font-medium">{login.cpf}</span>
-                            </div>
-                          </div>
-                        )}
                         <div className="flex items-center flex-wrap gap-1.5">
                           <Badge className="bg-green-500/90 text-white border-0 text-[10px]">
                             <CheckCircle className="h-3 w-3 mr-0.5" />
@@ -691,6 +693,41 @@ const LoginHotmail = () => {
             </div>
           )}
         </>
+      )}
+
+      {/* Histórico Simples */}
+      {compras.length > 0 && (
+        <div className="space-y-2">
+          <h3 className="text-sm sm:text-base font-semibold text-foreground flex items-center gap-2">
+            <Clock className="h-4 w-4 text-muted-foreground" />
+            Histórico de Compras
+          </h3>
+          <Card className="bg-card border-border">
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-xs">Email</TableHead>
+                    <TableHead className="text-xs">Valor</TableHead>
+                    <TableHead className="text-xs">Data</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {compras.slice(0, 10).map((compra) => (
+                    <TableRow key={compra.id}>
+                      <TableCell className="text-xs font-mono truncate max-w-[150px]">{compra.email || '-'}</TableCell>
+                      <TableCell className="text-xs font-semibold">{formatPrice(compra.preco_pago)}</TableCell>
+                      <TableCell className="text-xs">
+                        <div>{new Date(compra.created_at).toLocaleDateString('pt-BR')}</div>
+                        <div className="text-[10px] text-muted-foreground">{new Date(compra.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </div>
       )}
 
 
