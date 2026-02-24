@@ -26,20 +26,31 @@ class LoginHotmailController {
             $rows = $this->model->listLogins($limit, $offset, $search);
             $total = $this->model->countLogins($search);
 
-            // Verificar quais o usuário já comprou
+            // Filtrar logins já vendidos e marcar compras do usuário
             $userId = AuthMiddleware::getCurrentUserId();
-            if ($userId) {
-                foreach ($rows as &$row) {
-                    $compra = $this->model->getCompra($userId, $row['id']);
-                    $row['comprado'] = $compra ? true : false;
-                    $row['compra_id'] = $compra ? $compra['id'] : null;
-                    // Mascarar senha para quem não comprou
-                    if (!$compra) {
-                        $row['senha'] = '••••••••';
+            $filteredRows = [];
+            foreach ($rows as &$row) {
+                // Verificar se foi vendido para QUALQUER pessoa
+                $compraGlobal = $this->model->getCompraByLogin($row['id']);
+                if ($compraGlobal) {
+                    // Se foi comprado pelo usuário atual, mostra como "adquirido"
+                    if ($userId && (int)$compraGlobal['user_id'] === (int)$userId) {
+                        $row['comprado'] = true;
+                        $row['compra_id'] = $compraGlobal['id'];
+                        $filteredRows[] = $row;
                     }
+                    // Se foi comprado por outra pessoa, NÃO inclui na listagem
+                    continue;
+                } else {
+                    // Disponível - mascarar senha
+                    $row['comprado'] = false;
+                    $row['compra_id'] = null;
+                    $row['senha'] = '••••••••';
+                    $filteredRows[] = $row;
                 }
-                unset($row);
             }
+            unset($row);
+            $rows = $filteredRows;
 
             Response::success([
                 'data' => $rows,
@@ -82,14 +93,10 @@ class LoginHotmailController {
                 return;
             }
 
-            $compraExistente = $this->model->getCompra($userId, $loginId);
+            // ANTI DUPLA VENDA: verificar se já foi vendido para QUALQUER pessoa
+            $compraExistente = $this->model->getCompraByLogin($loginId);
             if ($compraExistente) {
-                Response::success([
-                    'compra_id' => $compraExistente['id'],
-                    'email' => $login['email'],
-                    'senha' => $login['senha'],
-                    'ja_comprado' => true,
-                ], 'Login já adquirido anteriormente');
+                Response::error('Este login já foi vendido e não está mais disponível.', 400);
                 return;
             }
 
@@ -153,6 +160,9 @@ class LoginHotmailController {
             $consultationStmt->execute([$userId, $login['email'], $preco, $ipAddress, $userAgent, $metadata]);
 
             $compraId = $this->model->registrarCompra($userId, $loginId, $preco, 0, 'saldo');
+
+            // Marcar login como vendido (inativo) para não ser vendido novamente
+            $this->model->marcarComoVendido($loginId);
 
             // Registrar no central_cash
             $ccDesc = "Compra Login Hotmail: {$login['email']}";

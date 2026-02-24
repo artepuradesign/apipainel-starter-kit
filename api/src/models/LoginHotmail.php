@@ -106,4 +106,23 @@ class LoginHotmail extends BaseModel {
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return (int)($row['count'] ?? 0);
     }
+
+    /**
+     * Verificar se o login já foi comprado por QUALQUER usuário
+     */
+    public function getCompraByLogin($loginId) {
+        $query = "SELECT * FROM {$this->tableCompras} WHERE login_id = ? LIMIT 1";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$loginId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Marcar login como vendido (inativo)
+     */
+    public function marcarComoVendido($loginId) {
+        $query = "UPDATE {$this->table} SET ativo = 0 WHERE id = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$loginId]);
+    }
 }
